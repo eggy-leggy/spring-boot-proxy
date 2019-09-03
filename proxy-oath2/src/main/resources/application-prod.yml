@@ -1,0 +1,7 @@
+yf:
+    account:
+        appKey: aaaaa
+        appSecret: bbbbbbbbb-1583-4031-b516-7472b4d1040e
+        salt: cccccccc
+        userAccount: ssss
+        password: a123456
