@@ -12,13 +12,14 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 
 
 @ConfigurationProperties(prefix = "yf.account")
-public class UserAccountProperties {
+public class BUserAccountProperties {
 
     private String appKey;
     private String appSecret;
     private String salt;
     private String userAccount;
     private String password;
+    private String version;
 
     public String getAppKey() {
         return appKey;
@@ -58,5 +59,13 @@ public class UserAccountProperties {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public String getVersion() {
+        return version;
+    }
+
+    public void setVersion(String version) {
+        this.version = version;
     }
 }

@@ -1,10 +1,12 @@
 package com.proxy;
 
+import com.proxy.config.OathTokenConfig;
 import com.proxy.utils.EncryptionUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -21,12 +23,16 @@ import org.springframework.test.context.junit4.SpringRunner;
 public class MainTest {
     private static final Logger logger = LoggerFactory.getLogger(MainTest.class);
 
+    @Autowired
+    OathTokenConfig tokenConfig;
 
     @Test
     public void test() {
 
 
         logger.info("{}", EncryptionUtils.md5("{\"tenantId\":\"3000000006346\",\"userAccount\":\"admin_3000000064534\"}"));
+        tokenConfig.getNewToken();
+
 //
 //        RestTemplate restTemplate = new RestTemplate();
 //        logger.info(EncryptionUtils.md5AndSha("a123456" + "c1d06b9cea934decb4ed8e01f0f2cd8f"));
