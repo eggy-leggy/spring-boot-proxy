@@ -63,6 +63,7 @@ public class OathTokenConfig {
 
         String formParam = FormParamUtils.parseObject2FormParam(tp);
 
+
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Type", "application/json;charset=utf-8");
         MultiValueMap<String, String> requestBody = new LinkedMultiValueMap<>();

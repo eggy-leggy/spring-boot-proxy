@@ -1,7 +1,12 @@
 yf:
     account:
-        appKey: aaaaa
-        appSecret: bbbbbbbbb-1583-4031-b516-7472b4d1040e
-        salt: cccccccc
-        userAccount: ssss
+        appKey: 0000000
+        appSecret: password
+        salt: devwww
+        userAccount: SBZZ
         password: a123456
+        version: 1.0
+    bw:
+        url: http://www.buzhidaoshisha.com/router/rest
+        method:
+            oauth: auth
