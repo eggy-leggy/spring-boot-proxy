@@ -2,7 +2,9 @@ package com.proxy.utils;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.util.StringUtils;
 
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -39,7 +41,7 @@ public class SignUtils {
         query.append(secret);
         for (String key : keys) {
             String value = params.get(key);
-            if (!isNull(key) && !isNull(value)) {
+            if (!StringUtils.isEmpty(key) && !StringUtils.isEmpty(value)) {
                 query.append(key).append(value);
             }
         }
@@ -59,7 +61,7 @@ public class SignUtils {
             throw new Exception(ignored);
         }
 
-        bytes = md5.digest(query.toString().getBytes("UTF-8"));
+        bytes = md5.digest(query.toString().getBytes(StandardCharsets.UTF_8));
         // 第四步：把二进制转化为大写的十六进制
         StringBuilder sign = new StringBuilder();
         for (byte b : bytes) {
@@ -70,9 +72,5 @@ public class SignUtils {
             sign.append(hex.toUpperCase());
         }
         return sign.toString();
-    }
-
-    public static boolean isNull(String str) {
-        return (str == null || "".equals(str) ? true : false);
     }
 }
