@@ -32,7 +32,7 @@ public class SignUtils {
      * @return 签名
      * @throws Exception
      */
-    public static String signTopRequest(Map<String, String> params, String secret, String body) throws Exception {
+    public static String signTopRequest(Map<String, Object> params, String secret, String body) throws Exception {
         // 第一步：检查参数是否已经排序
         ArrayList<String> keys = new ArrayList<String>(params.keySet());
         Collections.sort(keys);
@@ -40,7 +40,7 @@ public class SignUtils {
         StringBuilder query = new StringBuilder();
         query.append(secret);
         for (String key : keys) {
-            String value = params.get(key);
+            String value = String.valueOf(params.get(key));
             if (!StringUtils.isEmpty(key) && !StringUtils.isEmpty(value)) {
                 query.append(key).append(value);
             }

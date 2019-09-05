@@ -1,10 +1,11 @@
 package com.proxy;
 
 import com.alibaba.fastjson.JSONObject;
-import com.proxy.config.OathTokenConfig;
+import com.proxy.config.BRestClientConfig;
 import com.proxy.entity.BInvoiceDetails;
 import com.proxy.entity.BInvoiceUploadRequest;
 import com.proxy.utils.EncryptionUtils;
+import com.proxy.utils.R;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -30,14 +31,13 @@ public class MainTest {
     private static final Logger logger = LoggerFactory.getLogger(MainTest.class);
 
     @Autowired
-    OathTokenConfig tokenConfig;
+    BRestClientConfig tokenConfig;
 
     @Test
     public void test() {
 
 
         logger.info("{}", EncryptionUtils.md5("{\"tenantId\":\"3000000006346\",\"userAccount\":\"admin_3000000064534\"}"));
-        tokenConfig.getNewToken();
 
         BInvoiceUploadRequest request = new BInvoiceUploadRequest();
         List<BInvoiceDetails> invoiceDetailsList = new ArrayList<>();
@@ -53,7 +53,8 @@ public class MainTest {
         invoiceDetailsList.add(details);
         request.setInvoiceDetailsList(invoiceDetailsList);
 
-        System.out.println(JSONObject.toJSONString(request));
+        R r = tokenConfig.requestWithSign("baiwang.invoice.upload", JSONObject.toJSONString(request));
+        System.out.println(JSONObject.toJSONString(r));
 
 //
 //        RestTemplate restTemplate = new RestTemplate();
