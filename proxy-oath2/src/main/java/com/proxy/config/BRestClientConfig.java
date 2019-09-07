@@ -135,7 +135,7 @@ public class BRestClientConfig {
         MultiValueMap<String, String> headers = new HttpHeaders();
         headers.add("Content-Type", "application/json;charset=utf-8");
         if (null == body) {
-            return R.error("业务参数不能为空");
+            return R.error("业务数据不能为空");
         }
         HttpEntity<String> request = new HttpEntity<>(body, headers);
         ResponseEntity<String> res = restTemplate.postForEntity(baseUrl + "?" + formParam, request, String.class);

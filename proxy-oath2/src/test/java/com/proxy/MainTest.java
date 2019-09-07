@@ -2,6 +2,7 @@ package com.proxy;
 
 import com.alibaba.fastjson.JSONObject;
 import com.proxy.config.BRestClientConfig;
+import com.proxy.config.CTRestClientConfig;
 import com.proxy.entity.BInvoiceDetails;
 import com.proxy.entity.BInvoiceUploadRequest;
 import com.proxy.utils.EncryptionUtils;
@@ -33,9 +34,14 @@ public class MainTest {
     @Autowired
     BRestClientConfig tokenConfig;
 
+    @Autowired
+    CTRestClientConfig ctRestClientConfig;
+
     @Test
     public void test() {
 
+        ctRestClientConfig.requestWithSign("s", "json", "no");
+        System.exit(0);
 
         logger.info("{}", EncryptionUtils.md5("{\"tenantId\":\"3000000006346\",\"userAccount\":\"admin_3000000064534\"}"));
 
