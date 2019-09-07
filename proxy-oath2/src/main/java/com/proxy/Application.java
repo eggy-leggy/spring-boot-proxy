@@ -11,15 +11,8 @@ import org.springframework.web.bind.annotation.RestController;
  * @create 2019-09-03 17:48
  */
 
-@RestController
 @SpringBootApplication
 public class Application {
-
-    @RequestMapping(value = "/hello")
-    public String hello() {
-        return "hello world";
-    }
-
     public static void main(String[] args) {
         SpringApplication.run(Application.class, args);
     }

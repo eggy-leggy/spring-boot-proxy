@@ -53,7 +53,7 @@ public class MainTest {
         invoiceDetailsList.add(details);
         request.setInvoiceDetailsList(invoiceDetailsList);
 
-        R r = tokenConfig.requestWithSign("baiwang.invoice.upload", JSONObject.toJSONString(request));
+        R r = tokenConfig.requestWithSign("baiwang.invoice.upload", JSONObject.toJSONString(request), "json");
         System.out.println(JSONObject.toJSONString(r));
 
 //

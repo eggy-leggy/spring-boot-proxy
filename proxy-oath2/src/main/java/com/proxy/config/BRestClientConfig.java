@@ -35,7 +35,6 @@ import java.util.Map;
 @Configuration
 @EnableConfigurationProperties(value = BUserAccountProperties.class)
 public class BRestClientConfig {
-
     private final static Logger logger = LoggerFactory.getLogger(BRestClientConfig.class);
 
     @Autowired
@@ -55,7 +54,7 @@ public class BRestClientConfig {
     private long getTokenTimestamp = 0L;
 
 
-    private boolean getNewToken() {
+    private boolean getNewToken() throws Exception {
         getTokenTimestamp = new Date().getTime();
 
         BTokenParamNew tp = new BTokenParamNew();
@@ -80,38 +79,44 @@ public class BRestClientConfig {
             JSONObject json = JSON.parseObject(res.getBody());
             if (json.containsKey("response")) {
                 JSONObject tokenJson = json.getJSONObject("response");
-                try {
-                    logger.info("bw 获取新的token");
-                    accessToken = tokenJson.getString("access_token");
-                    refreshToken = tokenJson.getString("refresh_token");
-                    expiresIn = tokenJson.getLongValue("expires_in") * 1000L;
-                    return true;
-                } catch (Exception e) {
-                    logger.warn("bw 获取token失败 {}", e.getMessage());
-                }
+                logger.info("bw 获取新的token");
+                accessToken = tokenJson.getString("access_token");
+                refreshToken = tokenJson.getString("refresh_token");
+                expiresIn = tokenJson.getLongValue("expires_in") * 1000L;
+                return true;
+
             }
         }
         return false;
 
     }
 
-    private boolean tokenIsExpired() {
+    private R tokenIsExpired() {
         if (new Date().getTime() - getTokenTimestamp >= expiresIn) {
-            return this.getNewToken();
+            try {
+                boolean rc = this.getNewToken();
+                if (rc) {
+                    return R.ok();
+                }
+            } catch (Exception e) {
+                logger.info("获取token失败 {}", e.getMessage());
+                return R.error("获取token失败 ==>" + e.getMessage());
+            }
         }
-        return true;
+        return R.error("获取token失败");
     }
 
-    public R requestWithSign(String method, String body) {
-        if (!tokenIsExpired()) {
-            return R.error("获取baiwang 云 token失败");
+    public R requestWithSign(String method, String body, String format) {
+        R r = tokenIsExpired();
+        if (!String.valueOf(r.get("code")).equals("0")) {
+            return r;
         }
         BPubParameter pubParameter = new BPubParameter();
         pubParameter.setMethod(method);
         pubParameter.setAppKey(properties.getAppKey());
         pubParameter.setToken(accessToken);
         pubParameter.setTimestamp(String.valueOf(new Date().getTime()));
-        pubParameter.setFormat("json");
+        pubParameter.setFormat(format);
         pubParameter.setVersion(properties.getVersion());
         pubParameter.setType("sync");
 
