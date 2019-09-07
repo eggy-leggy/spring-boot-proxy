@@ -81,7 +81,7 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
                     <fork>true</fork>
-                    <mainClass>com.hh.Application</mainClass>
+                    <mainClass>com.proxy.Application</mainClass>
                 </configuration>
                 <executions>
                     <execution>
