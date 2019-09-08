@@ -1,12 +1,15 @@
-yf:
+bw:
     account:
-        appKey: 0000000
-        appSecret: password
-        salt: devwww
-        userAccount: SBZZ
-        password: a123456
+        appKey: aaaaaa
+        appSecret: aaaaaa
+        salt: aaaaaa
+        userAccount: aaaaaa
+        password: aaaaaa
         version: 1.0
-    bw:
-        url: http://www.buzhidaoshisha.com/router/rest
-        method:
-            oauth: auth
+    url: haaaaaa
+
+ct:
+    account:
+        appKey: aaaaaa
+        appSecurity: aaaaaa
+        ticketUrl: aaaaaa
