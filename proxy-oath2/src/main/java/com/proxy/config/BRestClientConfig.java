@@ -41,7 +41,7 @@ public class BRestClientConfig {
     private
     BUserAccountProperties properties;
 
-    @Value(value = "${yf.bw.url}")
+    @Value(value = "${bw.url}")
     private
     String baseUrl;
 
@@ -131,14 +131,14 @@ public class BRestClientConfig {
         }
         pubParameter.setSign(sign);
         String formParam = FormParamUtils.parseObject2FormParam(pubParameter);
+        logger.info("请求公共参数 [{}]", formParam);
         RestTemplate restTemplate = new RestTemplate();
-        MultiValueMap<String, String> headers = new HttpHeaders();
-        headers.add("Content-Type", "application/json;charset=utf-8");
         if (null == body) {
             return R.error("业务数据不能为空");
         }
-        HttpEntity<String> request = new HttpEntity<>(body, headers);
-        ResponseEntity<String> res = restTemplate.postForEntity(baseUrl + "?" + formParam, request, String.class);
+        logger.info("请求URL [{}] post body [{}]", baseUrl + "?" + formParam, body);
+
+        ResponseEntity<String> res = restTemplate.postForEntity(baseUrl + "?" + formParam, body, String.class);
         if (res.getStatusCode() == HttpStatus.OK) {
             return R.ok(res.getBody());
         }

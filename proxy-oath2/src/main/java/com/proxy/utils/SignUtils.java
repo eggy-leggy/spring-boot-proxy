@@ -2,6 +2,8 @@ package com.proxy.utils;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 
 import java.nio.charset.StandardCharsets;
@@ -21,6 +23,8 @@ import java.util.Map;
 
 
 public class SignUtils {
+
+    private static Logger logger = LoggerFactory.getLogger(SignUtils.class);
 
     private static final ObjectMapper mapper = new ObjectMapper();
 
@@ -46,11 +50,12 @@ public class SignUtils {
             }
         }
 
+        logger.info("签名公共参数 [{}]",query.toString());
+
         // 2017.11.02新增，验签包括request body，API version 3.0
         JsonNode node = mapper.readTree(body);
         body = mapper.writeValueAsString(node);
         query.append(body);
-
         query.append(secret);
         // 第三步：使用MD5加密
         byte[] bytes;
@@ -60,6 +65,8 @@ public class SignUtils {
         } catch (NoSuchAlgorithmException ignored) {
             throw new Exception(ignored);
         }
+
+        logger.info("sign签名全部字符串 [{}]",query.toString());
 
         bytes = md5.digest(query.toString().getBytes(StandardCharsets.UTF_8));
         // 第四步：把二进制转化为大写的十六进制

@@ -24,23 +24,13 @@ public class CTRestController {
     private final static Logger logger = LoggerFactory.getLogger(CTRestController.class);
 
     @Autowired
-    CTRestClientConfig ctRestClientConfig;
+    private CTRestClientConfig ctRestClientConfig;
 
     @RequestMapping(value = "rest")
-    public R gerRemoteUrl(@RequestParam(value = "url", required = true) String url,
-                          @RequestParam(value = "format", required = false) String format,
-                          @RequestBody JSONObject json) {
-        if (null == format) {
-            format = "json";
-        }
-        logger.info("url is [{}] format is [{}] post body is [{}]", url, format, json.toJSONString());
-        switch (format) {
-            case "json":
-            case "xml":
-                break;
-            default:
-                return R.error(HttpStatus.SC_BAD_REQUEST, "get data format must be json/xml");
-        }
-        return ctRestClientConfig.requestWithSign(url, json, format);
+    public Object gerRemoteUrl(@RequestParam(value = "url", required = true) String url,
+                               @RequestBody JSONObject json) {
+        logger.info("url is [{}] post body is [{}]", url, json.toJSONString());
+
+        return ctRestClientConfig.requestWithSign(url, json.toJSONString());
     }
 }

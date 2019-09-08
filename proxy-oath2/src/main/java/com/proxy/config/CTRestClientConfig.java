@@ -38,17 +38,23 @@ import java.util.Map;
 public class CTRestClientConfig {
     private final static Logger logger = LoggerFactory.getLogger(CTRestClientConfig.class);
 
-    private
-    String baseUrl = "https://ct.ctrip.com/SwitchAPI/Order/Ticket";
+    @Value(value = "${ct.account.ticketUrl}")
+    private String ticketUrl;
 
     // 过期时间固定2小时
     private long expiresIn = 60 * 60 * 2 * 1000;
 
-    private String appKey = "";
+    @Value(value = "${ct.account.appKey}")
+    private String appKey;
 
-    private String appSecurity = "";
+    @Value(value = "${ct.account.appSecurity}")
+    private String appSecurity;
 
     private String accessToken;
+
+    private final static String YF_APPKEY = "YF_APPKEY";
+
+    private final static String YF_TICKET = "YF_TICKET";
 
     private Map<String, String> auth = new HashMap<>();
 
@@ -65,7 +71,7 @@ public class CTRestClientConfig {
         map.put("appSecurity", appSecurity);
         HttpEntity<String> request = new HttpEntity<>(JSONObject.toJSONString(map), headers);
         logger.info(request.getBody());
-        ResponseEntity<String> res = restTemplate.postForEntity(baseUrl, request, String.class);
+        ResponseEntity<String> res = restTemplate.postForEntity(ticketUrl, request, String.class);
         if (res.getStatusCode() == HttpStatus.OK) {
             JSONObject json = JSON.parseObject(res.getBody());
             logger.info(json.toJSONString());
@@ -92,24 +98,23 @@ public class CTRestClientConfig {
                 return R.error("获取token失败 ==>" + e.getMessage());
             }
         }
-        return R.error("获取token失败");
+        return R.ok();
     }
 
-    public R requestWithSign(String url, JSONObject body, String format) {
+    public Object requestWithSign(String url, String postBody) {
         R r = tokenIsExpired();
         if (!String.valueOf(r.get("code")).equals("0")) {
             return r;
         }
-        body.put("auth", auth);
-        logger.info("accessToken is {}", accessToken);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-Type", "application/json;charset=UTF-8");
+
+        postBody = postBody.replace(YF_APPKEY, appKey).replace(YF_TICKET, accessToken);
+        HttpEntity<String> entity = new HttpEntity<>(postBody, headers);
         RestTemplate restTemplate = new RestTemplate(new HttpsClientRequestFactory());
-
-        ResponseEntity<String> res = restTemplate.postForEntity(url, body.toJSONString(), String.class);
-        if (res.getStatusCode() == HttpStatus.OK) {
-            return R.ok(res.getBody());
-        }
-        return R.error(res.getStatusCodeValue(), res.getBody());
+        logger.info("url is [{}] post body is [{}]", url, entity);
+        return restTemplate.postForEntity(url, entity, String.class);
     }
-
 
 }

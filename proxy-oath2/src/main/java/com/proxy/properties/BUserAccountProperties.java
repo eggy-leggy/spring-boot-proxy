@@ -11,7 +11,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  */
 
 
-@ConfigurationProperties(prefix = "yf.account")
+@ConfigurationProperties(prefix = "bw.account")
 public class BUserAccountProperties {
 
     private String appKey;
