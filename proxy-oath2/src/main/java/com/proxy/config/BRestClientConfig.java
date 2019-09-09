@@ -106,7 +106,7 @@ public class BRestClientConfig {
         return R.error("获取token失败");
     }
 
-    public R requestWithSign(String method, String body, String format) {
+    public Object requestWithSign(String method, String body, String format, String version) {
         R r = tokenIsExpired();
         if (!String.valueOf(r.get("code")).equals("0")) {
             return r;
@@ -117,7 +117,7 @@ public class BRestClientConfig {
         pubParameter.setToken(accessToken);
         pubParameter.setTimestamp(String.valueOf(new Date().getTime()));
         pubParameter.setFormat(format);
-        pubParameter.setVersion(properties.getVersion());
+        pubParameter.setVersion(version);
         pubParameter.setType("sync");
 
 
@@ -129,20 +129,19 @@ public class BRestClientConfig {
             logger.warn("sign 签名失败 {}", e.getMessage());
             return R.error("sign 签名失败");
         }
-        pubParameter.setSign(sign);
         String formParam = FormParamUtils.parseObject2FormParam(pubParameter);
+        formParam = formParam + "&sign=" + sign;
         logger.info("请求公共参数 [{}]", formParam);
         RestTemplate restTemplate = new RestTemplate();
         if (null == body) {
             return R.error("业务数据不能为空");
         }
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-Type", "application/json;charset=utf-8");
+        HttpEntity<String> request = new HttpEntity<>(body, headers);
         logger.info("请求URL [{}] post body [{}]", baseUrl + "?" + formParam, body);
 
-        ResponseEntity<String> res = restTemplate.postForEntity(baseUrl + "?" + formParam, body, String.class);
-        if (res.getStatusCode() == HttpStatus.OK) {
-            return R.ok(res.getBody());
-        }
-        return R.error(res.getStatusCodeValue(), res.getBody());
+        return restTemplate.postForEntity(baseUrl + "?" + formParam, request, String.class);
     }
 
 

@@ -13,7 +13,6 @@ public class BPubParameter {
 
     private String method;
     private String appKey;
-    private String sign;
     private String token;
     private String timestamp;
     private String format;
@@ -34,14 +33,6 @@ public class BPubParameter {
 
     public void setAppKey(String appKey) {
         this.appKey = appKey;
-    }
-
-    public String getSign() {
-        return sign;
-    }
-
-    public void setSign(String sign) {
-        this.sign = sign;
     }
 
     public String getToken() {
