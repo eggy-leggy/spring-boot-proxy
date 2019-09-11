@@ -103,7 +103,7 @@ public class BRestClientConfig {
                 return R.error("获取token失败 ==>" + e.getMessage());
             }
         }
-        return R.error("获取token失败");
+        return R.ok();
     }
 
     public Object requestWithSign(String method, String body, String format, String version) {
