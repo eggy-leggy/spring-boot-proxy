@@ -101,10 +101,10 @@ public class CTRestClientConfig {
         return R.ok();
     }
 
-    public Object requestWithSign(String url, String postBody) {
+    public ResponseEntity<String> requestWithSign(String url, String postBody) {
         R r = tokenIsExpired();
         if (!String.valueOf(r.get("code")).equals("0")) {
-            return r;
+            return new ResponseEntity<String>("sign 签名失败", HttpStatus.UNAUTHORIZED);
         }
 
         HttpHeaders headers = new HttpHeaders();
@@ -114,7 +114,8 @@ public class CTRestClientConfig {
         HttpEntity<String> entity = new HttpEntity<>(postBody, headers);
         RestTemplate restTemplate = new RestTemplate(new HttpsClientRequestFactory());
         logger.info("url is [{}] post body is [{}]", url, entity);
-        return restTemplate.postForEntity(url, entity, String.class);
+        ResponseEntity<String> res = restTemplate.postForEntity(url, entity, String.class);
+        return new ResponseEntity<String>(res.getBody(), res.getStatusCode());
     }
 
 }

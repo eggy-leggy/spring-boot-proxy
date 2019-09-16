@@ -2,15 +2,13 @@ package com.proxy.app.controller;
 
 import com.alibaba.fastjson.JSONObject;
 import com.proxy.config.CTRestClientConfig;
-import com.proxy.utils.R;
-import org.apache.http.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
 
 /**
  * @author Frank F
@@ -29,6 +27,7 @@ public class CTRestController {
     @RequestMapping(value = "rest")
     public Object gerRemoteUrl(@RequestParam(value = "url", required = true) String url,
                                @RequestBody JSONObject json) {
+
         logger.info("url is [{}] post body is [{}]", url, json.toJSONString());
 
         return ctRestClientConfig.requestWithSign(url, json.toJSONString());

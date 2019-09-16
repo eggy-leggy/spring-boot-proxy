@@ -1,15 +1,16 @@
 bw:
-    account:
-        appKey: aaaaaa
-        appSecret: aaaaaa
-        salt: aaaaaa
-        userAccount: aaaaaa
-        password: aaaaaa
-        version: 1.0
-    url: haaaaaa
-
+  account:
+    appKey: aaaaaa
+    appSecret: aaaaaa
+    salt: aaaaaa
+    userAccount: aaaaaa
+    password: aaaaaa
+    version: 1.0
+  url: haaaaaa
+  aes:
+    password: aes
 ct:
-    account:
-        appKey: aaaaaa
-        appSecurity: aaaaaa
-        ticketUrl: aaaaaa
+  account:
+    appKey: aaaaaa
+    appSecurity: aaaaaa
+    ticketUrl: aaaaaa

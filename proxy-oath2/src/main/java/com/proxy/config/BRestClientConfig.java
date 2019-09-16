@@ -106,10 +106,10 @@ public class BRestClientConfig {
         return R.ok();
     }
 
-    public Object requestWithSign(String method, String body, String format, String version) {
+    public ResponseEntity<String> requestWithSign(String method, String body, String format, String version) {
         R r = tokenIsExpired();
         if (!String.valueOf(r.get("code")).equals("0")) {
-            return r;
+            return new ResponseEntity<String>("业务数据不能为空", HttpStatus.UNAUTHORIZED);
         }
         BPubParameter pubParameter = new BPubParameter();
         pubParameter.setMethod(method);
@@ -127,21 +127,21 @@ public class BRestClientConfig {
             sign = SignUtils.signTopRequest(map, properties.getAppSecret(), body);
         } catch (Exception e) {
             logger.warn("sign 签名失败 {}", e.getMessage());
-            return R.error("sign 签名失败");
+            return new ResponseEntity<String>("oauth 签名失败", HttpStatus.UNAUTHORIZED);
         }
         String formParam = FormParamUtils.parseObject2FormParam(pubParameter);
         formParam = formParam + "&sign=" + sign;
         logger.info("请求公共参数 [{}]", formParam);
         RestTemplate restTemplate = new RestTemplate();
         if (null == body) {
-            return R.error("业务数据不能为空");
+            return new ResponseEntity<String>("业务数据不能为空", HttpStatus.BAD_REQUEST);
         }
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Type", "application/json;charset=utf-8");
         HttpEntity<String> request = new HttpEntity<>(body, headers);
         logger.info("请求URL [{}] post body [{}]", baseUrl + "?" + formParam, body);
-
-        return restTemplate.postForEntity(baseUrl + "?" + formParam, request, String.class);
+        ResponseEntity<String> res = restTemplate.postForEntity(baseUrl + "?" + formParam, request, String.class);
+        return new ResponseEntity<String>(res.getBody(), res.getStatusCode());
     }
 
 

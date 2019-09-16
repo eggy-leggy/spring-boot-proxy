@@ -7,7 +7,8 @@ bw:
         password: aaaaaa
         version: 1.0
     url: haaaaaa
-
+    aes:
+        password: aes
 ct:
     account:
         appKey: aaaaaa
