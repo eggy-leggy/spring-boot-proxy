@@ -2,6 +2,7 @@ package com.proxy.app.controller;
 
 import com.alibaba.fastjson.JSONObject;
 import com.proxy.config.CTRestClientConfig;
+import com.proxy.utils.DataFormatUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,12 +25,26 @@ public class CTRestController {
     @Autowired
     private CTRestClientConfig ctRestClientConfig;
 
-    @RequestMapping(value = "rest")
+    @RequestMapping(value = "rest", produces = "text/plain;charset=utf-8")
     public Object gerRemoteUrl(@RequestParam(value = "url", required = true) String url,
-                               @RequestBody JSONObject json) {
+                               @RequestParam(value = "format", required = false) String format,
+                               @RequestBody String body) {
 
-        logger.info("url is [{}] post body is [{}]", url, json.toJSONString());
+        logger.info("url is [{}] post body is [{}]", url, body);
 
-        return ctRestClientConfig.requestWithSign(url, json.toJSONString());
+        if (null == format) {
+            format = "json";
+        }
+        switch (format) {
+            case "json":
+                break;
+            case "xml":
+                body = DataFormatUtils.xml2json(body);
+                break;
+            default:
+                return new ResponseEntity<String>("请求数据格式只能是 json 或 xml", HttpStatus.BAD_REQUEST);
+        }
+
+        return ctRestClientConfig.requestWithSign(url, format, body);
     }
 }

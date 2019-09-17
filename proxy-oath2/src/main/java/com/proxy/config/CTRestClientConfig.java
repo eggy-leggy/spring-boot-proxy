@@ -101,7 +101,7 @@ public class CTRestClientConfig {
         return R.ok();
     }
 
-    public ResponseEntity<String> requestWithSign(String url, String postBody) {
+    public ResponseEntity<String> requestWithSign(String url, String format, String postBody) {
         R r = tokenIsExpired();
         if (!String.valueOf(r.get("code")).equals("0")) {
             return new ResponseEntity<String>("sign 签名失败", HttpStatus.UNAUTHORIZED);
@@ -116,10 +116,14 @@ public class CTRestClientConfig {
         logger.info("url is [{}] post body is [{}]", url, entity);
         ResponseEntity<String> res = restTemplate.postForEntity(url, entity, String.class);
         HttpHeaders resHeaders = new HttpHeaders();
-        resHeaders.add("Content-Type", "application/json;charset=UTF-8");
+        resHeaders.add("Content-Type", "text/plain;charset=UTF-8");
         resHeaders.add("Date", new Date().toString());
-        resHeaders.add("vary","accept-encoding");
-        return new ResponseEntity<String>(res.getBody(), resHeaders, res.getStatusCode());
+        resHeaders.add("vary", "accept-encoding");
+        String result = res.getBody();
+        if ("xml".equals(format)) {
+            result = DataFormatUtils.json2xml(result);
+        }
+        return new ResponseEntity<String>(result, resHeaders, res.getStatusCode());
     }
 
 }

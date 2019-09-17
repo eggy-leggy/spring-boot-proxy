@@ -3,6 +3,7 @@ package com.proxy.app.controller;
 import com.alibaba.fastjson.JSONObject;
 import com.proxy.config.BRestClientConfig;
 import com.proxy.utils.AESUtils;
+import com.proxy.utils.DataFormatUtils;
 import com.proxy.utils.R;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,13 +41,17 @@ public class BWNetRestController {
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Type", "application/json;charset=utf-8");
         if (json.containsKey("data")) {
+
             String aseStr = json.getString("data");
             String aesResult = AESUtils.decrypt(aseStr, password);
             if (null == aesResult) {
                 return new ResponseEntity<String>("AES 解密失败", headers, HttpStatus.INTERNAL_SERVER_ERROR);
             }
+            aesResult = DataFormatUtils.json2xml(aesResult);
+            HttpHeaders pusHeaders = new HttpHeaders();
+            pusHeaders.add("Content-Type", "application/xml;charset=utf-8");
             RestTemplate restTemplate = new RestTemplate();
-            HttpEntity<String> request = new HttpEntity<>(aesResult, headers);
+            HttpEntity<String> request = new HttpEntity<>(aesResult, pusHeaders);
             logger.info("请求URL [{}] post body [{}]", invoicePushURL, aesResult);
             return restTemplate.postForEntity(invoicePushURL, request, String.class);
         } else {
