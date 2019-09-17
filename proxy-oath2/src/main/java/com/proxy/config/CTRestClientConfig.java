@@ -121,7 +121,7 @@ public class CTRestClientConfig {
         resHeaders.add("vary", "accept-encoding");
         String result = res.getBody();
         if ("xml".equals(format)) {
-            result = DataFormatUtils.json2xml(result);
+            result = DataFormatUtils.xmlAttachBase(DataFormatUtils.json2xml(result));
         }
         return new ResponseEntity<String>(result, resHeaders, res.getStatusCode());
     }

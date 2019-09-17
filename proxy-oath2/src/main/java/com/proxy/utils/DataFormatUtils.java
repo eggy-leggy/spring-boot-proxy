@@ -30,13 +30,20 @@ public class DataFormatUtils {
         try {
             JSONObject obj = new JSONObject(jsonStr);
             //converting json to xml
-            String xmlStr = XML.toString(obj);
-            return "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>" + xmlStr;
+            return XML.toString(obj);
         } catch (JSONException e) {
             logger.warn("JSON 字符串格式不正确 {}", e.getMessage());
             return null;
         }
 
+    }
+
+    public static String xmlAttachBase(String xmlStr) {
+        StringBuffer sb = new StringBuffer();
+        sb.append("<?xml version=\"1.0\" encoding=\"UTF-8\" ?><base>");
+        sb.append(xmlStr);
+        sb.append("</base>");
+        return sb.toString();
     }
 
     public static void main(String[] args) {

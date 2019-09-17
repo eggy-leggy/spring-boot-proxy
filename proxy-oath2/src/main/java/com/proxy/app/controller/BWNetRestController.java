@@ -47,10 +47,11 @@ public class BWNetRestController {
             if (null == aesResult) {
                 return new ResponseEntity<String>("AES 解密失败", headers, HttpStatus.INTERNAL_SERVER_ERROR);
             }
-            aesResult = DataFormatUtils.json2xml(aesResult);
-            HttpHeaders pusHeaders = new HttpHeaders();
-            pusHeaders.add("Content-Type", "application/xml;charset=utf-8");
             RestTemplate restTemplate = new RestTemplate();
+            aesResult = DataFormatUtils.xmlAttachBase(DataFormatUtils.json2xml(aesResult));
+            HttpHeaders pusHeaders = new HttpHeaders();
+            pusHeaders.add("Content-Type", "text/xml;charset=utf-8");
+
             HttpEntity<String> request = new HttpEntity<>(aesResult, pusHeaders);
             logger.info("请求URL [{}] post body [{}]", invoicePushURL, aesResult);
             return restTemplate.postForEntity(invoicePushURL, request, String.class);
