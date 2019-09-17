@@ -44,13 +44,15 @@ public class SignUtils {
         StringBuilder query = new StringBuilder();
         query.append(secret);
         for (String key : keys) {
-            String value = String.valueOf(params.get(key));
-            if (!StringUtils.isEmpty(key) && !StringUtils.isEmpty(value)) {
-                query.append(key).append(value);
+            if (!"sign".equals(key)) {
+                String value = String.valueOf(params.get(key));
+                if (!StringUtils.isEmpty(key) && !StringUtils.isEmpty(value)) {
+                    query.append(key).append(value);
+                }
             }
         }
 
-        logger.info("签名公共参数 [{}]",query.toString());
+        logger.info("签名公共参数 [{}]", query.toString());
 
         // 2017.11.02新增，验签包括request body，API version 3.0
         JsonNode node = mapper.readTree(body);
@@ -66,7 +68,7 @@ public class SignUtils {
             throw new Exception(ignored);
         }
 
-        logger.info("sign签名全部字符串 [{}]",query.toString());
+        logger.info("sign签名全部字符串 [{}]", query.toString());
 
         bytes = md5.digest(query.toString().getBytes(StandardCharsets.UTF_8));
         // 第四步：把二进制转化为大写的十六进制
@@ -98,7 +100,7 @@ public class SignUtils {
             }
         }
 
-        logger.info("sign签名全部字符串 [{}]",str);
+        logger.info("sign签名全部字符串 [{}]", str);
 
         bytes = md5.digest(str.getBytes(StandardCharsets.UTF_8));
         // 第四步：把二进制转化为大写的十六进制
