@@ -37,20 +37,20 @@ public class BWNetRestController {
 
     @PostMapping(value = "invoice/push")
     public Object InvoicePush(@RequestBody JSONObject json) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-Type", "application/json;charset=utf-8");
         if (json.containsKey("data")) {
             String aseStr = json.getString("data");
             String aesResult = AESUtils.decrypt(aseStr, password);
             if (null == aesResult) {
-                return new ResponseEntity<String>("AES 解密失败", HttpStatus.INTERNAL_SERVER_ERROR);
+                return new ResponseEntity<String>("AES 解密失败", headers, HttpStatus.INTERNAL_SERVER_ERROR);
             }
             RestTemplate restTemplate = new RestTemplate();
-            HttpHeaders headers = new HttpHeaders();
-            headers.add("Content-Type", "application/json;charset=utf-8");
             HttpEntity<String> request = new HttpEntity<>(aesResult, headers);
             logger.info("请求URL [{}] post body [{}]", invoicePushURL, aesResult);
             return restTemplate.postForEntity(invoicePushURL, request, String.class);
         } else {
-            return new ResponseEntity<String>("未发现data", HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<String>("未发现data", headers, HttpStatus.BAD_REQUEST);
         }
     }
 
