@@ -115,7 +115,11 @@ public class CTRestClientConfig {
         RestTemplate restTemplate = new RestTemplate(new HttpsClientRequestFactory());
         logger.info("url is [{}] post body is [{}]", url, entity);
         ResponseEntity<String> res = restTemplate.postForEntity(url, entity, String.class);
-        return new ResponseEntity<String>(res.getBody(), res.getStatusCode());
+        HttpHeaders resHeaders = new HttpHeaders();
+        resHeaders.add("Content-Type", "application/json;charset=UTF-8");
+        resHeaders.add("Date", new Date().toString());
+        resHeaders.add("vary","accept-encoding");
+        return new ResponseEntity<String>(res.getBody(), resHeaders, res.getStatusCode());
     }
 
 }
