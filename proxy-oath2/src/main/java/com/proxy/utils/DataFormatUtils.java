@@ -31,7 +31,7 @@ public class DataFormatUtils {
             JSONObject obj = new JSONObject(jsonStr);
             //converting json to xml
             String xmlStr = XML.toString(obj);
-            return xmlStr;
+            return "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>" + xmlStr;
         } catch (JSONException e) {
             logger.warn("JSON 字符串格式不正确 {}", e.getMessage());
             return null;
