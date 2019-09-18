@@ -1,5 +1,6 @@
 package com.proxy.app.controller;
 
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.proxy.config.BRestClientConfig;
 import com.proxy.utils.DataFormatUtils;
@@ -9,6 +10,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Frank F
@@ -34,12 +39,36 @@ public class BWRestController {
         if (null == version) {
             version = "3.0";
         }
-        logger.info("method is [{}] format is [{}] post body is [{}]", method, format, body);
+
         switch (format) {
             case "json":
+                logger.info("method is [{}] format is [{}] post body is [{}]", method, format, body);
                 break;
             case "xml":
-                body = DataFormatUtils.xml2json(body);
+                try {
+                    body = DataFormatUtils.xml2json(body);
+                    logger.info("method is [{}] format is [{}] post body is [{}]", method, format, body);
+                    JSONObject json = JSONObject.parseObject(body);
+                    if (json.containsKey("Request")) {
+                        json = json.getJSONObject("Request");
+                    }
+                    if (json.containsKey("invoiceDetailsList")) {
+                        if (json.getJSONObject("invoiceDetailsList").containsKey("Item")) {
+                            if (json.getJSONObject("invoiceDetailsList").get("Item") instanceof JSONArray) {
+                                json.put("invoiceDetailsList", json.getJSONObject("invoiceDetailsList").getJSONArray("Item"));
+                            } else if (json.getJSONObject("invoiceDetailsList").get("Item") instanceof JSONObject) {
+                                List<JSONObject> list = new ArrayList<>();
+                                list.add(json.getJSONObject("invoiceDetailsList").getJSONObject("Item"));
+                                json.put("invoiceDetailsList", list);
+                            }
+                        }
+                    }
+                    body = json.toJSONString();
+                } catch (Exception e) {
+                    logger.warn("请求参数不正确 {}", e.getMessage());
+                    return new ResponseEntity<String>("请求业务数据xml格式不正确", HttpStatus.BAD_REQUEST);
+                }
+
                 break;
             default:
                 return new ResponseEntity<String>("请求数据格式只能是 json 或 xml", HttpStatus.BAD_REQUEST);
