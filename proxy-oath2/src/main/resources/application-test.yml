@@ -9,6 +9,9 @@ bw:
     url: haaaaaa
     aes:
         password: aes
+    esb:
+        url:
+            invoicePush: http://
 ct:
     account:
         appKey: aaaaaa
