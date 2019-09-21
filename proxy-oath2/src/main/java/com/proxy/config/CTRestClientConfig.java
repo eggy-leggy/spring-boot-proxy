@@ -119,6 +119,7 @@ public class CTRestClientConfig {
         resHeaders.add("Content-Type", "text/plain;charset=UTF-8");
         resHeaders.add("Date", new Date().toString());
         resHeaders.add("vary", "accept-encoding");
+
         String result = res.getBody();
         if ("xml".equals(format)) {
             result = DataFormatUtils.xmlAttachBase(DataFormatUtils.json2xml(result));
