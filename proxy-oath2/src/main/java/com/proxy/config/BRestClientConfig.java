@@ -140,7 +140,14 @@ public class BRestClientConfig {
         headers.add("Content-Type", "application/json;charset=utf-8");
         HttpEntity<String> request = new HttpEntity<>(body, headers);
         logger.info("请求URL [{}] post body [{}]", baseUrl + "?" + formParam, body);
-        return restTemplate.postForEntity(baseUrl + "?" + formParam, request, String.class);
+        ResponseEntity<String> res = restTemplate.postForEntity(baseUrl + "?" + formParam, request, String.class);
+
+        HttpHeaders resHeaders = new HttpHeaders();
+        resHeaders.add("Content-Type", "text/plain;charset=UTF-8");
+        resHeaders.add("Date", new Date().toString());
+        resHeaders.setVary(res.getHeaders().getVary());
+
+        return new ResponseEntity<String>(res.getBody(), resHeaders, res.getStatusCode());
     }
 
 

@@ -115,15 +115,16 @@ public class CTRestClientConfig {
         RestTemplate restTemplate = new RestTemplate(new HttpsClientRequestFactory());
         logger.info("url is [{}] post body is [{}]", url, entity);
         ResponseEntity<String> res = restTemplate.postForEntity(url, entity, String.class);
-        HttpHeaders resHeaders = new HttpHeaders();
-        resHeaders.add("Content-Type", "text/plain;charset=UTF-8");
-        resHeaders.add("Date", new Date().toString());
-        resHeaders.add("vary", "accept-encoding");
+
 
         String result = res.getBody();
         if ("xml".equals(format)) {
             result = DataFormatUtils.xmlAttachBase(DataFormatUtils.json2xml(result));
         }
+        HttpHeaders resHeaders = new HttpHeaders();
+        resHeaders.add("Content-Type", "text/plain;charset=UTF-8");
+        resHeaders.add("Date", new Date().toString());
+        resHeaders.setVary(res.getHeaders().getVary());
         return new ResponseEntity<String>(result, resHeaders, res.getStatusCode());
     }
 

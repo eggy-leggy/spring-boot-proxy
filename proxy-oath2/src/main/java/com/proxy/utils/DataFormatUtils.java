@@ -7,7 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * @author ChunqiangFan
+ * @author Frank F
  * @description: 数据格式转换工具
  * @create 2019-09-17 17:27
  */
