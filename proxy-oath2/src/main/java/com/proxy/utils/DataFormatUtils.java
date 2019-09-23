@@ -30,7 +30,7 @@ public class DataFormatUtils {
         try {
             JSONObject obj = new JSONObject(jsonStr);
             //converting json to xml
-            return XML.toString((JSONObject) obj);
+            return XML.toString(obj);
         } catch (JSONException e) {
             logger.warn("JSON 字符串格式不正确 {}", e.getMessage());
             return null;

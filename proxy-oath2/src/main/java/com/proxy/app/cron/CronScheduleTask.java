@@ -75,8 +75,9 @@ public class CronScheduleTask {
             for (Object obj : airPortCitysMap.values()) {
                 if (i == 50) {
                     Map<String, Object> map = new HashMap<>();
-                    map.put("datas", result);
-                    ctesbForwardService.postXmlToESB(JSONObject.toJSONString(map));
+                    JSONObject jsonReq = new JSONObject();
+                    jsonReq.put("datas", result);
+                    ctesbForwardService.postXmlToESB(jsonReq.toJSONString());
                     result.clear();
                     i = 0;
                 }
