@@ -10,7 +10,7 @@ import java.net.Socket;
 import java.security.cert.X509Certificate;
 
 /**
- * @author ChunqiangFan
+ * @author Frank F
  * @description: https支持
  * @create 2019-09-07 16:47
  */

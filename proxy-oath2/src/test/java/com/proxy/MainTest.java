@@ -14,6 +14,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.util.Map;
+
 
 /**
  * @author : Frank F
@@ -39,8 +41,12 @@ public class MainTest {
 
     @Test
     public void test() {
-
-        cronScheduleTask.printTas1k();
+        cronScheduleTask.getAirPortCity();
+//        Map<String, String> countryMap = cronScheduleTask.getHotelCountry();
+//        for (String countryID : countryMap.keySet()) {
+//            cronScheduleTask.getHotelCountryCityExtend(countryID);
+//        }
+//        logger.trace("city map {}", cronScheduleTask.getHotelMap());
 //        ctRestClientConfig.requestWithSign("s", "json", "no");
 //        System.exit(0);
 
