@@ -17,3 +17,10 @@ ct:
     appKey: aaaaaa
     appSecurity: aaaaaa
     ticketUrl: aaaaaa
+  url:
+    passenger-ticket:
+      airPortCity: aaa
+      airPort: aaa
+    hotel:
+      country: aaa
+      city: aaa

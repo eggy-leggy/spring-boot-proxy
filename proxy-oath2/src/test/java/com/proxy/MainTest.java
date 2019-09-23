@@ -2,6 +2,8 @@ package com.proxy;
 
 import com.alibaba.fastjson.JSONObject;
 import com.proxy.app.cron.CronScheduleTask;
+import com.proxy.app.service.CTESBForwardService;
+import com.proxy.app.service.CTNetRestService;
 import com.proxy.config.BRestClientConfig;
 import com.proxy.config.CTRestClientConfig;
 import com.proxy.utils.EncryptionUtils;
@@ -34,21 +36,23 @@ public class MainTest {
     BRestClientConfig tokenConfig;
 
     @Autowired
-    CTRestClientConfig ctRestClientConfig;
+    private CTESBForwardService ctesbForwardService;
 
     @Autowired
-    CronScheduleTask cronScheduleTask;
+    private CTNetRestService ctNetRestService;
 
     @Test
     public void test() {
-        cronScheduleTask.getAirPortCity();
-//        Map<String, String> countryMap = cronScheduleTask.getHotelCountry();
-//        for (String countryID : countryMap.keySet()) {
-//            cronScheduleTask.getHotelCountryCityExtend(countryID);
-//        }
-//        logger.trace("city map {}", cronScheduleTask.getHotelMap());
-//        ctRestClientConfig.requestWithSign("s", "json", "no");
-//        System.exit(0);
+        Map<String, Object> apc = ctNetRestService.getAirPortCity();
+        ctesbForwardService.postXmlToESB("http:///www.yf.ee", apc.values());
+        Map<String, Object> hc = ctNetRestService.getHotelCountry();
+        for (String countryID : hc.keySet()) {
+            Map<String, Object> hcce = ctNetRestService.getHotelCountryCityExtend(countryID);
+            ctesbForwardService.postXmlToESB("http:///www.yf.ee", hcce.values());
+            break;
+        }
+
+        System.exit(0);
 
 //        logger.info("{}", EncryptionUtils.md5("{\"tenantId\":\"3000000006346\",\"userAccount\":\"admin_3000000064534\"}"));
 //
