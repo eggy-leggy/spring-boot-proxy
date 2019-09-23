@@ -1,0 +1,31 @@
+bw:
+  account:
+    appKey: aaaa
+    appSecret: aaaa
+    salt: aaa
+    userAccount: aa
+    password: aa
+    version: 3.0
+  url: aa
+  aes:
+    password: aa
+  esb:
+    url:
+      invoicePush: aa
+
+ct:
+  account:
+    appKey: aa
+    appSecurity: aa
+    ticketUrl: aa
+  url:
+    passenger-ticket:
+      airPortCity: aa
+      airPort: aa
+    hotel:
+      country: aa
+      city: aa
+  esb:
+    url:
+      airPortCity: aa
+      hotelCity: aa
