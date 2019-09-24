@@ -1,14 +1,20 @@
 package com.proxy.app.controller;
 
 import com.alibaba.fastjson.JSONObject;
+import com.proxy.app.service.CTNetRestService;
 import com.proxy.config.CTRestClientConfig;
 import com.proxy.utils.DataFormatUtils;
+import com.proxy.utils.FileObjectUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.HashMap;
+import java.util.Map;
 
 
 /**
@@ -24,6 +30,14 @@ public class CTRestController {
 
     @Autowired
     private CTRestClientConfig ctRestClientConfig;
+
+    @Autowired
+    private CTNetRestService ctNetRestService;
+
+
+    @Value(value = "${ct.esb.cache.filePath}")
+    private String filePath;
+
 
     @RequestMapping(value = "rest", produces = "text/plain;charset=utf-8")
     public Object gerRemoteUrl(@RequestParam(value = "url", required = true) String url,
@@ -47,4 +61,37 @@ public class CTRestController {
 
         return ctRestClientConfig.requestWithSign(url, format, body);
     }
+
+    @RequestMapping(value = "save/hotelCountry", produces = "text/plain;charset=utf-8")
+    public Object getHotelCountry() {
+
+        Map<String, Object> citysMap = new HashMap<>();
+        Map<String, Object> hc = ctNetRestService.getHotelCountry();
+        for (String countryID : hc.keySet()) {
+            Map<String, Object> hcce = ctNetRestService.getHotelCountryCityExtend(countryID);
+            if (!hcce.isEmpty()) {
+                citysMap.putAll(hcce);
+            }
+            break;
+        }
+        logger.info(citysMap.toString());
+        return null;
+    }
+
+    @RequestMapping(value = "save/airPortCity", produces = "text/plain;charset=utf-8")
+    public Object getAirPortCity() {
+        Map<String, Object> map = ctNetRestService.getAirPortCity();
+        if (map.isEmpty()) {
+            return new ResponseEntity<String>("未查询到数据", HttpStatus.NO_CONTENT);
+        }
+        boolean rc = FileObjectUtils.writeObjectToFile(filePath + "/airPortCity", map);
+        if (rc) {
+            Map<String, Object> res = (Map<String, Object>) FileObjectUtils.readObjectFromFile(filePath + "/airPortCity");
+            logger.info(res.toString());
+            return JSONObject.toJSONString(res);
+        }
+
+        return null;
+    }
+
 }

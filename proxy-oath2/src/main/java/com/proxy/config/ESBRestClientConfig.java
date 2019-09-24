@@ -41,7 +41,7 @@ public class ESBRestClientConfig {
         HttpEntity<String> entity = new HttpEntity<>(postBody, headers);
         RestTemplate restTemplate = new RestTemplate(new HttpsClientRequestFactory());
         logger.info("url is [{}] post body is [{}]", url, entity);
-//        return restTemplate.postForEntity(url, entity, String.class);
-        return null;
+        return restTemplate.postForEntity(url, entity, String.class);
+//        return null;
     }
 }

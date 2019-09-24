@@ -1,26 +1,36 @@
 bw:
   account:
-    appKey: aaaaaa
-    appSecret: aaaaaa
-    salt: aaaaaa
-    userAccount: aaaaaa
-    password: aaaaaa
-    version: 1.0
-  url: haaaaaa
+    appKey: aaaa
+    appSecret: aaaa
+    salt: aaa
+    userAccount: aa
+    password: aa
+    version: 3.0
+  url: aa
   aes:
-    password: aes
+    password: aa
   esb:
     url:
-      invoicePush: http://
+      invoicePush: aa
+
 ct:
   account:
-    appKey: aaaaaa
-    appSecurity: aaaaaa
-    ticketUrl: aaaaaa
+    appKey: aa
+    appSecurity: aa
+    ticketUrl: aa
   url:
     passenger-ticket:
-      airPortCity: aaa
-      airPort: aaa
+      airPortCity: aa
+      airPort: aa
     hotel:
-      country: aaa
-      city: aaa
+      country: aa
+      city: aa
+  esb:
+    cache:
+      filePath: aa
+    url:
+      airPortCity: aa
+      hotelCity: aa
+cron:
+  ct:
+    esbPush: sss
