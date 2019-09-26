@@ -6,6 +6,8 @@ import org.json.XML;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
+
 /**
  * @author Frank F
  * @description: 数据格式转换工具
@@ -36,6 +38,12 @@ public class DataFormatUtils {
             return null;
         }
 
+    }
+
+    public static String listjson2xml(List<Object> list){
+        com.alibaba.fastjson.JSONObject jsonReq = new com.alibaba.fastjson.JSONObject();
+        jsonReq.put("datas", list);
+        return json2xml(jsonReq.toJSONString());
     }
 
     public static String xmlAttachBase(String xmlStr) {

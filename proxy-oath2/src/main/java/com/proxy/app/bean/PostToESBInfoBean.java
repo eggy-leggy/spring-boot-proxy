@@ -4,6 +4,11 @@ public class PostToESBInfoBean {
     private String url;
     private String body;
 
+    public PostToESBInfoBean(String url, String body) {
+        this.url = url;
+        this.body = body;
+    }
+
     public String getUrl() {
         return url;
     }

@@ -1,10 +1,11 @@
 package com.proxy.app.controller;
 
-import com.alibaba.fastjson.JSONObject;
 import com.proxy.app.service.CTNetRestService;
 import com.proxy.config.CTRestClientConfig;
 import com.proxy.utils.DataFormatUtils;
 import com.proxy.utils.FileObjectUtils;
+import com.proxy.utils.JsonToSqlUtils;
+import com.proxy.utils.R;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +14,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -34,6 +38,8 @@ public class CTRestController {
     @Autowired
     private CTNetRestService ctNetRestService;
 
+
+    SimpleDateFormat sf = new SimpleDateFormat("yyyy-MM-dd");
 
     @Value(value = "${ct.esb.cache.filePath}")
     private String filePath;
@@ -62,36 +68,65 @@ public class CTRestController {
         return ctRestClientConfig.requestWithSign(url, format, body);
     }
 
-    @RequestMapping(value = "save/hotelCountry", produces = "text/plain;charset=utf-8")
-    public Object getHotelCountry() {
+    private static int maxCount = 20000;
+
+    @RequestMapping(value = "save/hotelCity")
+    public Object getHotelCity() {
 
         Map<String, Object> citysMap = new HashMap<>();
         Map<String, Object> hc = ctNetRestService.getHotelCountry();
+        int index = 1;
         for (String countryID : hc.keySet()) {
             Map<String, Object> hcce = ctNetRestService.getHotelCountryCityExtend(countryID);
+            FileObjectUtils.writeObjectToFile(filePath, String.format("hotelCity-%s.dat", countryID), hcce);
             if (!hcce.isEmpty()) {
                 citysMap.putAll(hcce);
             }
-            break;
+            if (citysMap.size() > maxCount) {
+                saveJsonToSqlFile(citysMap, "MiddleInterface_test.dbo.ctrip_GrogshopCity", null, String.format("hotelCityINIT_%s_%d.sql", sf.format(new Date()), index), true);
+                index++;
+                citysMap.clear();
+            }
+        }
+        if (citysMap.size() > maxCount) {
+            saveJsonToSqlFile(citysMap, "MiddleInterface_test.dbo.ctrip_GrogshopCity", null, String.format("hotelCityINIT_%s_%d.sql", sf.format(new Date()), index), true);
+            citysMap.clear();
         }
         logger.info(citysMap.toString());
-        return null;
+        return R.ok();
     }
 
-    @RequestMapping(value = "save/airPortCity", produces = "text/plain;charset=utf-8")
+//    public static String cols = "code,countryID,cityID,name,provinceID,countryCode,countryName";
+
+    @GetMapping(value = "save/airPortCity")
     public Object getAirPortCity() {
         Map<String, Object> map = ctNetRestService.getAirPortCity();
         if (map.isEmpty()) {
-            return new ResponseEntity<String>("未查询到数据", HttpStatus.NO_CONTENT);
+            return ResponseEntity.noContent();
         }
-        boolean rc = FileObjectUtils.writeObjectToFile(filePath + "/airPortCity", map);
+        FileObjectUtils.writeObjectToFile(filePath, "airPortCityFile.dat", map);
+        boolean rc = saveJsonToSqlFile(map, "MiddleInterface_test.dbo.ctrip_City_Aircraft", null, String.format("airPortCityINIT_%s.sql", sf.format(new Date())), false);
         if (rc) {
-            Map<String, Object> res = (Map<String, Object>) FileObjectUtils.readObjectFromFile(filePath + "/airPortCity");
-            logger.info(res.toString());
-            return JSONObject.toJSONString(res);
+            return R.ok();
         }
-
-        return null;
+        return R.error();
     }
 
+
+    private Boolean saveJsonToSqlFile(Map<String, Object> map, String tableName, String cols, String fileName, Boolean isAppend) {
+        StringBuffer sb = new StringBuffer();
+        for (Object jsonObj : map.values()) {
+            String content = JsonToSqlUtils.JsonToInsertSql(tableName, cols, jsonObj);
+            if (null != content) {
+                sb.append(content);
+                sb.append("\r\n");
+            }
+        }
+        try {
+            FileObjectUtils.writeFile(filePath, fileName, sb.toString(), isAppend);
+            return true;
+        } catch (IOException e) {
+            return false;
+        }
+    }
 }

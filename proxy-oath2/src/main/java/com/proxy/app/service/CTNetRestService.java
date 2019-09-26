@@ -53,7 +53,7 @@ public class CTNetRestService {
         ResponseEntity<String> res = ctRestClientConfig.requestWithSign(PASSENGER_TICKET_CITY_URL, "json", "{\"auth\":{\"appKey\":\"YF_APPKEY\",\"ticket\":\"YF_TICKET\" }}");
         if (res.getStatusCodeValue() == 200) {
             JSONObject json = JSONObject.parseObject(res.getBody());
-            logger.info("返回数据: {}", json.toJSONString());
+            logger.trace("返回数据: {}", json.toJSONString());
             if (json.containsKey("datas") && json.get("datas") instanceof JSONArray) {
                 JSONArray arr = json.getJSONArray("datas");
 
