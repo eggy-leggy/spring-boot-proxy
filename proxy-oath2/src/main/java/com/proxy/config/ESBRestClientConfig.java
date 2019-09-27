@@ -34,12 +34,10 @@ public class ESBRestClientConfig {
 
     public ResponseEntity<String> postXmlToESB(String url, String postBody) {
         HttpHeaders headers = new HttpHeaders();
-        headers.add("Content-Type", "text/xml;charset=UTF-8");
+        headers.add("Content-Type", "text/plain;charset=UTF-8");
         headers.setDate(new Date().getTime());
-        postBody = DataFormatUtils.json2xml(postBody);
-        postBody = DataFormatUtils.xmlAttachBase(postBody);
         HttpEntity<String> entity = new HttpEntity<>(postBody, headers);
-        RestTemplate restTemplate = new RestTemplate(new HttpsClientRequestFactory());
+        RestTemplate restTemplate = new RestTemplate();
         logger.info("url is [{}] post body is [{}]", url, entity);
         return restTemplate.postForEntity(url, entity, String.class);
 //        return null;

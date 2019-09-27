@@ -1,5 +1,6 @@
 package com.proxy.app.controller;
 
+import com.proxy.app.common.GeneralConstant;
 import com.proxy.app.service.CTNetRestService;
 import com.proxy.config.CTRestClientConfig;
 import com.proxy.utils.DataFormatUtils;
@@ -44,6 +45,11 @@ public class CTRestController {
     @Value(value = "${ct.esb.cache.filePath}")
     private String filePath;
 
+    @Value(value = "${ct.esb.table.hotelCity}")
+    private String hotelCityTable;
+
+    @Value(value = "${ct.esb.table.airPortCity}")
+    private String airportCityTable;
 
     @RequestMapping(value = "rest", produces = "text/plain;charset=utf-8")
     public Object gerRemoteUrl(@RequestParam(value = "url", required = true) String url,
@@ -78,21 +84,20 @@ public class CTRestController {
         int index = 1;
         for (String countryID : hc.keySet()) {
             Map<String, Object> hcce = ctNetRestService.getHotelCountryCityExtend(countryID);
-            FileObjectUtils.writeObjectToFile(filePath, String.format("hotelCity-%s.dat", countryID), hcce);
+            FileObjectUtils.writeObjectToFile(filePath, String.format(GeneralConstant.HOTEL_CITY_FILE, countryID), hcce);
             if (!hcce.isEmpty()) {
                 citysMap.putAll(hcce);
             }
             if (citysMap.size() > maxCount) {
-                saveJsonToSqlFile(citysMap, "MiddleInterface_test.dbo.ctrip_GrogshopCity", null, String.format("hotelCityINIT_%s_%d.sql", sf.format(new Date()), index), true);
+                saveJsonToSqlFile(citysMap, hotelCityTable, null, String.format("hotelCityINIT_%s_%d.sql", sf.format(new Date()), index), true);
                 index++;
                 citysMap.clear();
             }
         }
         if (citysMap.size() > maxCount) {
-            saveJsonToSqlFile(citysMap, "MiddleInterface_test.dbo.ctrip_GrogshopCity", null, String.format("hotelCityINIT_%s_%d.sql", sf.format(new Date()), index), true);
+            saveJsonToSqlFile(citysMap, hotelCityTable, null, String.format("hotelCityINIT_%s_%d.sql", sf.format(new Date()), index), true);
             citysMap.clear();
         }
-        logger.info(citysMap.toString());
         return R.ok();
     }
 
@@ -104,8 +109,8 @@ public class CTRestController {
         if (map.isEmpty()) {
             return ResponseEntity.noContent();
         }
-        FileObjectUtils.writeObjectToFile(filePath, "airPortCityFile.dat", map);
-        boolean rc = saveJsonToSqlFile(map, "MiddleInterface_test.dbo.ctrip_City_Aircraft", null, String.format("airPortCityINIT_%s.sql", sf.format(new Date())), false);
+        FileObjectUtils.writeObjectToFile(filePath, GeneralConstant.AIRPORT_CITY_FILE, map);
+        boolean rc = saveJsonToSqlFile(map, airportCityTable, null, String.format("airPortCityINIT_%s.sql", sf.format(new Date())), false);
         if (rc) {
             return R.ok();
         }

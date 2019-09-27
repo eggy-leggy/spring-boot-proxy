@@ -3,6 +3,7 @@ package com.proxy.app.cron;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.proxy.app.bean.PostToESBInfoBean;
+import com.proxy.app.common.GeneralConstant;
 import com.proxy.app.service.CTESBForwardService;
 import com.proxy.app.service.CTNetRestService;
 import com.proxy.config.CTRestClientConfig;
@@ -59,68 +60,57 @@ public class CronScheduleTask {
         if (bean != null) {
             logger.info("开始发送数据 {} {}", bean.getUrl(), bean.getBody());
             ResponseEntity<String> res = esbRestClientConfig.postXmlToESB(bean.getUrl(), bean.getBody());
+            logger.info("发送结果 {}", res.getBody());
             if (res.getStatusCodeValue() != 200 || !Objects.requireNonNull(res.getBody()).contains("0")) {
+                logger.info("发送失败，放入队列等待重新发送");
                 queue.add(bean);
             }
         }
     }
 
-//    @Scheduled(cron = "")
-    public void getHotelCity() {
+    /**
+     * 酒店 城市信息同步
+     */
+    @Scheduled(cron = "${cron.ct.hotelCity}")
+    public void getHotelCityTask() {
+        logger.info("开始同步酒店-城市信息");
         Map<String, Object> hc = ctNetRestService.getHotelCountry();
+        List<Object> postList = new ArrayList<>();
         for (String countryID : hc.keySet()) {
             Map<String, Object> map = ctNetRestService.getHotelCountryCityExtend(countryID);
             if (map.isEmpty()) {
                 continue;
             }
-            Map<String, Object> baseMap = (Map<String, Object>) FileObjectUtils.readObjectFromFile(filePath, String.format("hotelCity-%s.dat", countryID));
+            Map<String, Object> baseMap = (Map<String, Object>) FileObjectUtils.readObjectFromFile(filePath, String.format(GeneralConstant.HOTEL_CITY_FILE, countryID));
             if (null != baseMap) {
-                List<Object> postList = new ArrayList<>();
                 for (String key : map.keySet()) {
-                    if (baseMap.containsKey(key)) {
-                        if (!map.get(key).equals(baseMap.get(key))) {
-                            postList.add(map.get(key));
-                        }
-                    } else {
-                        postList.add(map.get(key));
-                    }
-                    if (postList.size() >= 10) {
-                        String xmlStr = DataFormatUtils.listjson2xml(postList);
-                        xmlStr = DataFormatUtils.xmlAttachBase(xmlStr);
-                        queue.add(new PostToESBInfoBean(hotelCityUrl, xmlStr));
-                        postList.clear();
-                    }
+                    listTool(postList, baseMap, map, key, hotelCityUrl);
                 }
                 if (postList.size() > 0) {
-                    String xmlStr = DataFormatUtils.listjson2xml(postList);
-                    xmlStr = DataFormatUtils.xmlAttachBase(xmlStr);
-                    queue.add(new PostToESBInfoBean(hotelCityUrl, xmlStr));
-                }
-            }
-            FileObjectUtils.writeObjectToFile(filePath, String.format("hotelCity-%s.dat", countryID), map);
-        }
-    }
-
-//    @Scheduled(cron = "")
-    public void getAirPortCity() {
-        Map<String, Object> map = ctNetRestService.getAirPortCity();
-        Map<String, Object> baseMap = (Map<String, Object>) FileObjectUtils.readObjectFromFile(filePath, "airPortCityFile.dat");
-        if (baseMap != null) {
-            List<Object> postList = new ArrayList<>();
-            for (String key : map.keySet()) {
-                if (baseMap.containsKey(key)) {
-                    if (!map.get(key).equals(baseMap.get(key))) {
-                        postList.add(map.get(key));
-                    }
-                } else {
-                    postList.add(map.get(key));
-                }
-                if (postList.size() >= 10) {
                     String xmlStr = DataFormatUtils.listjson2xml(postList);
                     xmlStr = DataFormatUtils.xmlAttachBase(xmlStr);
                     queue.add(new PostToESBInfoBean(airPortCityUrl, xmlStr));
                     postList.clear();
                 }
+            }
+
+            FileObjectUtils.writeObjectToFile(filePath, String.format(GeneralConstant.HOTEL_CITY_FILE, countryID), map);
+        }
+
+    }
+
+    /**
+     * 机场 城市信息同步
+     */
+    @Scheduled(cron = "${cron.ct.airPortCity}")
+    public void getAirPortCityTask() {
+        logger.info("开始同步机场-城市信息");
+        Map<String, Object> map = ctNetRestService.getAirPortCity();
+        Map<String, Object> baseMap = (Map<String, Object>) FileObjectUtils.readObjectFromFile(filePath, GeneralConstant.AIRPORT_CITY_FILE);
+        if (baseMap != null) {
+            List<Object> postList = new ArrayList<>();
+            for (String key : map.keySet()) {
+                listTool(postList, baseMap, map, key, airPortCityUrl);
             }
             if (postList.size() > 0) {
                 String xmlStr = DataFormatUtils.listjson2xml(postList);
@@ -128,6 +118,27 @@ public class CronScheduleTask {
                 queue.add(new PostToESBInfoBean(airPortCityUrl, xmlStr));
             }
         }
-        FileObjectUtils.writeObjectToFile(filePath, "airPortCityFile.dat", map);
+        FileObjectUtils.writeObjectToFile(filePath, GeneralConstant.AIRPORT_CITY_FILE, map);
     }
+
+    private void listTool(List<Object> postList, Map baseMap, Map map, String key, String url) {
+        if (baseMap.containsKey(key)) {
+            if (!map.get(key).equals(baseMap.get(key))) {
+                if (null != map.get(key)) {
+                    postList.add(map.get(key));
+                }
+            }
+        } else {
+            if (null != map.get(key)) {
+                postList.add(map.get(key));
+            }
+        }
+        if (postList.size() >= 10) {
+            String xmlStr = DataFormatUtils.listjson2xml(postList);
+            xmlStr = DataFormatUtils.xmlAttachBase(xmlStr);
+            queue.add(new PostToESBInfoBean(url, xmlStr));
+            postList.clear();
+        }
+    }
+
 }
