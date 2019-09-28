@@ -68,7 +68,6 @@ public class BWRestController {
                     logger.warn("请求参数不正确 {}", e.getMessage());
                     return new ResponseEntity<String>("请求业务数据xml格式不正确", HttpStatus.BAD_REQUEST);
                 }
-
                 break;
             default:
                 return new ResponseEntity<String>("请求数据格式只能是 json 或 xml", HttpStatus.BAD_REQUEST);

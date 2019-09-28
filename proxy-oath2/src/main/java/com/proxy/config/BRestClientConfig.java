@@ -146,6 +146,7 @@ public class BRestClientConfig {
         resHeaders.add("Content-Type", "text/plain;charset=UTF-8");
         resHeaders.add("Date", new Date().toString());
         resHeaders.setVary(res.getHeaders().getVary());
+        logger.info("返回数据 [{}]", res.getBody());
 
         return new ResponseEntity<String>(res.getBody(), resHeaders, res.getStatusCode());
     }
