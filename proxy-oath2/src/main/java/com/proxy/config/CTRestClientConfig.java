@@ -2,23 +2,16 @@ package com.proxy.config;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.proxy.entity.BPubParameter;
-import com.proxy.entity.BTokenParamNew;
 import com.proxy.factory.HttpsClientRequestFactory;
-import com.proxy.properties.BUserAccountProperties;
 import com.proxy.utils.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.Date;
@@ -113,11 +106,12 @@ public class CTRestClientConfig {
         postBody = postBody.replace(YF_APPKEY, appKey).replace(YF_TICKET, accessToken);
         HttpEntity<String> entity = new HttpEntity<>(postBody, headers);
         RestTemplate restTemplate = new RestTemplate(new HttpsClientRequestFactory());
-        logger.info("url is [{}] post body is [{}]", url, entity);
+        logger.info("Ctrip 请求 url [{}] post body [{}]", url, entity);
         ResponseEntity<String> res = restTemplate.postForEntity(url, entity, String.class);
 
 
         String result = res.getBody();
+        logger.info("Ctrip 返回数据 [{}]", result);
         if ("xml".equals(format)) {
             result = DataFormatUtils.xmlAttachBase(DataFormatUtils.json2xml(result));
         }
