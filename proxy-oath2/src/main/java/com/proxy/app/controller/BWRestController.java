@@ -11,9 +11,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * @author Frank F
@@ -32,6 +32,7 @@ public class BWRestController {
     public Object getRemoteUrl(@RequestParam(value = "method", required = true) String method,
                                @RequestParam(value = "format", required = false) String format,
                                @RequestParam(value = "version", required = false) String version,
+                               @RequestParam(value = "requestId", required = false) String requestId,
                                @RequestBody String body) {
         if (null == format) {
             format = "json";
@@ -42,12 +43,12 @@ public class BWRestController {
 
         switch (format) {
             case "json":
-                logger.info("method is [{}] format is [{}] post body is [{}]", method, format, body);
+                logger.trace("method is [{}] format is [{}] post body is [{}]", method, format, body);
                 break;
             case "xml":
                 try {
                     body = DataFormatUtils.xml2json(body);
-                    logger.info("method is [{}] format is [{}] post body is [{}]", method, format, body);
+                    logger.trace("method is [{}] format is [{}] post body is [{}]", method, format, body);
                     JSONObject json = JSONObject.parseObject(body);
                     if (json.containsKey("Request")) {
                         json = json.getJSONObject("Request");
@@ -72,6 +73,11 @@ public class BWRestController {
             default:
                 return new ResponseEntity<String>("请求数据格式只能是 json 或 xml", HttpStatus.BAD_REQUEST);
         }
-        return restClientConfig.requestWithSign(method, body, format, version);
+        if (null == requestId) {
+            return restClientConfig.requestWithSign(method, body, format, version);
+        } else if ("uuid".equals(requestId.toLowerCase())) {
+            requestId = UUID.randomUUID().toString();
+        }
+        return restClientConfig.requestWithSign(method, body, format, version, requestId);
     }
 }

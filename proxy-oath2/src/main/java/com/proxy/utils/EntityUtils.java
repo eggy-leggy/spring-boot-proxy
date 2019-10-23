@@ -1,5 +1,8 @@
 package com.proxy.utils;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
@@ -14,6 +17,8 @@ import java.util.Map;
 
 
 public class EntityUtils {
+    private final static Logger logger = LoggerFactory.getLogger(EntityUtils.class);
+
     /**
      * 实体类转Map
      *
@@ -31,7 +36,8 @@ public class EntityUtils {
                 field.setAccessible(flag);
             } catch (Exception e) {
                 // TODO Auto-generated catch block
-                e.printStackTrace();
+                logger.error("请求参数转换失败 {}", map);
+                return null;
             }
         }
         return map;

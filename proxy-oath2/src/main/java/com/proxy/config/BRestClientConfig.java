@@ -107,10 +107,15 @@ public class BRestClientConfig {
     }
 
     public ResponseEntity<String> requestWithSign(String method, String body, String format, String version) {
+        return requestWithSign(method, body, format, version, null);
+    }
+
+    public ResponseEntity<String> requestWithSign(String method, String body, String format, String version, String requestId) {
         R r = tokenIsExpired();
         if (!String.valueOf(r.get("code")).equals("0")) {
             return new ResponseEntity<String>("业务数据不能为空", HttpStatus.UNAUTHORIZED);
         }
+        // 定义公共参数
         BPubParameter pubParameter = new BPubParameter();
         pubParameter.setMethod(method);
         pubParameter.setAppKey(properties.getAppKey());
@@ -120,8 +125,14 @@ public class BRestClientConfig {
         pubParameter.setVersion(version);
         pubParameter.setType("sync");
 
-
         Map<String, Object> map = EntityUtils.entityToMap(pubParameter);
+        if (null == map) {
+            return new ResponseEntity<String>("请求公共参数处理失败", HttpStatus.BAD_REQUEST);
+        }
+        if (null != requestId) {
+            map.put("requestId", requestId);
+            logger.info("参数包含 requestId 值为 [{}]", requestId);
+        }
         String sign;
         try {
             sign = SignUtils.signTopRequest(map, properties.getAppSecret(), body);
@@ -129,7 +140,7 @@ public class BRestClientConfig {
             logger.warn("sign 签名失败 {}", e.getMessage());
             return new ResponseEntity<String>("oauth 签名失败", HttpStatus.UNAUTHORIZED);
         }
-        String formParam = FormParamUtils.parseObject2FormParam(pubParameter);
+        String formParam = FormParamUtils.parseMap2FormParam(map);
         formParam = formParam + "&sign=" + sign;
         logger.info("请求公共参数 [{}]", formParam);
         RestTemplate restTemplate = new RestTemplate();
