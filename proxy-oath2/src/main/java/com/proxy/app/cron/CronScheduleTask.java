@@ -1,16 +1,11 @@
 package com.proxy.app.cron;
 
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
 import com.proxy.app.bean.PostToESBInfoBean;
 import com.proxy.app.common.GeneralConstant;
-import com.proxy.app.service.CTESBForwardService;
 import com.proxy.app.service.CTNetRestService;
-import com.proxy.config.CTRestClientConfig;
 import com.proxy.config.ESBRestClientConfig;
 import com.proxy.utils.DataFormatUtils;
 import com.proxy.utils.FileObjectUtils;
-import com.proxy.utils.R;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +14,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.web.bind.annotation.GetMapping;
 
 import java.util.*;
 import java.util.concurrent.LinkedBlockingQueue;

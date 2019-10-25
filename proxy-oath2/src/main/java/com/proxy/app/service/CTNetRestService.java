@@ -50,7 +50,7 @@ public class CTNetRestService {
 
     public Map<String, Object> getAirPortCity() {
         Map<String, Object> airPortCitysMap = new HashMap<>();
-        ResponseEntity<String> res = ctRestClientConfig.requestWithSign(PASSENGER_TICKET_CITY_URL, "json", "{\"auth\":{\"appKey\":\"YF_APPKEY\",\"ticket\":\"YF_TICKET\" }}");
+        ResponseEntity<String> res = ctRestClientConfig.requestWithSignNoLog(PASSENGER_TICKET_CITY_URL, "json", "{\"auth\":{\"appKey\":\"YF_APPKEY\",\"ticket\":\"YF_TICKET\" }}");
         if (res.getStatusCodeValue() == 200) {
             JSONObject json = JSONObject.parseObject(res.getBody());
             logger.trace("返回数据: {}", json.toJSONString());
@@ -75,7 +75,7 @@ public class CTNetRestService {
     public Map<String, Object> getAirPort() {
         Map<String, Object> airPortsMap = new HashMap<>();
 
-        ResponseEntity<String> res = ctRestClientConfig.requestWithSign(PASSENGER_TICKET_AIRPORT_URL, "json", "{\"auth\":{\"appKey\":\"YF_APPKEY\",\"ticket\":\"YF_TICKET\" }}");
+        ResponseEntity<String> res = ctRestClientConfig.requestWithSignNoLog(PASSENGER_TICKET_AIRPORT_URL, "json", "{\"auth\":{\"appKey\":\"YF_APPKEY\",\"ticket\":\"YF_TICKET\" }}");
         if (res.getStatusCodeValue() == 200) {
 //            logger.info(res.getBody());
             JSONObject json = JSONObject.parseObject(res.getBody());
@@ -102,7 +102,7 @@ public class CTNetRestService {
     public Map<String, Object> getHotelCountry() {
         Map<String, Object> hotelCountriesMap = new HashMap<>();
 
-        ResponseEntity<String> res = ctRestClientConfig.requestWithSign(HOTEL_COUNTRY_URL, "json", "{\"auth\":{\"appKey\":\"YF_APPKEY\",\"ticket\":\"YF_TICKET\" }}");
+        ResponseEntity<String> res = ctRestClientConfig.requestWithSignNoLog(HOTEL_COUNTRY_URL, "json", "{\"auth\":{\"appKey\":\"YF_APPKEY\",\"ticket\":\"YF_TICKET\" }}");
         if (res.getStatusCodeValue() == 200) {
 //            logger.info(res.getBody());
             JSONObject json = JSONObject.parseObject(res.getBody());
@@ -127,7 +127,7 @@ public class CTNetRestService {
     public Map<String, Object> getHotelCountryCityExtend(String countryID) {
         Map<String, Object> hotelMap = new HashMap<>();
 
-        ResponseEntity<String> res = ctRestClientConfig.requestWithSign(HOTEL_CITY_URL,
+        ResponseEntity<String> res = ctRestClientConfig.requestWithSignNoLog(HOTEL_CITY_URL,
                 "json", "{\"auth\":{\"appKey\":\"YF_APPKEY\",\"ticket\":\"YF_TICKET\" },\"CountryId\":" + countryID + "}");
         if (res.getStatusCodeValue() == 200) {
 //            logger.info(res.getBody());

@@ -122,4 +122,29 @@ public class CTRestClientConfig {
         return new ResponseEntity<String>(result, resHeaders, res.getStatusCode());
     }
 
+    public ResponseEntity<String> requestWithSignNoLog(String url, String format, String postBody) {
+        R r = tokenIsExpired();
+        if (!String.valueOf(r.get("code")).equals("0")) {
+            return new ResponseEntity<String>("sign 签名失败", HttpStatus.UNAUTHORIZED);
+        }
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-Type", "application/json;charset=UTF-8");
+
+        postBody = postBody.replace(YF_APPKEY, appKey).replace(YF_TICKET, accessToken);
+        HttpEntity<String> entity = new HttpEntity<>(postBody, headers);
+        RestTemplate restTemplate = new RestTemplate(new HttpsClientRequestFactory());
+//        logger.trace("Ctrip 请求 url [{}] post body [{}]", url, entity);
+        ResponseEntity<String> res = restTemplate.postForEntity(url, entity, String.class);
+        String result = res.getBody();
+//        logger.trace("Ctrip 返回数据 [{}]", result);
+        if ("xml".equals(format)) {
+            result = DataFormatUtils.xmlAttachBase(DataFormatUtils.json2xml(result));
+        }
+        HttpHeaders resHeaders = new HttpHeaders();
+        resHeaders.add("Content-Type", "text/plain;charset=UTF-8");
+        resHeaders.add("Date", new Date().toString());
+        resHeaders.setVary(res.getHeaders().getVary());
+        return new ResponseEntity<String>(result, resHeaders, res.getStatusCode());
+    }
 }
