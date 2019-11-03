@@ -34,8 +34,10 @@ public class CTRestClientConfig {
     @Value(value = "${ct.account.ticketUrl}")
     private String ticketUrl;
 
-    // 过期时间固定2小时
-    private long expiresIn = 60 * 60 * 2 * 1000;
+    // 过期时间固定1小时
+    private long expiresIn = 60 * 60 * 1000;
+
+    public static final String TICKET_EXPIRE = "身份过期";
 
     @Value(value = "${ct.account.appKey}")
     private String appKey;
@@ -103,15 +105,22 @@ public class CTRestClientConfig {
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Type", "application/json;charset=UTF-8");
 
-        postBody = postBody.replace(YF_APPKEY, appKey).replace(YF_TICKET, accessToken);
-        HttpEntity<String> entity = new HttpEntity<>(postBody, headers);
+        String ctPostBody = postBody.replace(YF_APPKEY, appKey).replace(YF_TICKET, accessToken);
+        HttpEntity<String> entity = new HttpEntity<>(ctPostBody, headers);
         RestTemplate restTemplate = new RestTemplate(new HttpsClientRequestFactory());
         logger.info("Ctrip 请求 url [{}] post body [{}]", url, entity);
         ResponseEntity<String> res = restTemplate.postForEntity(url, entity, String.class);
-
-
         String result = res.getBody();
         logger.info("Ctrip 返回数据 [{}]", result);
+        if (null != result && result.indexOf(TICKET_EXPIRE) > 0) {
+            logger.info("身份过期，重新获取ticket");
+            res = retryRequest(url, headers, postBody);
+            if (null == res) {
+                return new ResponseEntity<String>("再次获取ticket失败，请重新请求接口", HttpStatus.UNAUTHORIZED);
+            }
+            result = res.getBody();
+            logger.info("Ctrip Retry 返回数据 [{}]", result);
+        }
         if ("xml".equals(format)) {
             result = DataFormatUtils.xmlAttachBase(DataFormatUtils.json2xml(result));
         }
@@ -138,6 +147,14 @@ public class CTRestClientConfig {
         ResponseEntity<String> res = restTemplate.postForEntity(url, entity, String.class);
         String result = res.getBody();
 //        logger.trace("Ctrip 返回数据 [{}]", result);
+        if (null != result && result.indexOf(TICKET_EXPIRE) > 0) {
+            logger.info("身份过期，重新获取ticket");
+            res = retryRequest(url, headers, postBody);
+            if (null == res) {
+                return new ResponseEntity<String>("再次获取ticket失败，请重新请求接口", HttpStatus.UNAUTHORIZED);
+            }
+            result = res.getBody();
+        }
         if ("xml".equals(format)) {
             result = DataFormatUtils.xmlAttachBase(DataFormatUtils.json2xml(result));
         }
@@ -147,4 +164,23 @@ public class CTRestClientConfig {
         resHeaders.setVary(res.getHeaders().getVary());
         return new ResponseEntity<String>(result, resHeaders, res.getStatusCode());
     }
+
+    // 身份过期 重新获取ticket
+    private ResponseEntity<String> retryRequest(String url, HttpHeaders headers, String postBody) {
+        try {
+            boolean rc = this.getNewToken();
+            if (rc) {
+                return null;
+            }
+        } catch (Exception e) {
+            logger.info("获取token失败 {}", e.getMessage());
+            return null;
+        }
+        String ctPostBody = postBody.replace(YF_APPKEY, appKey).replace(YF_TICKET, accessToken);
+        HttpEntity<String> entity = new HttpEntity<>(ctPostBody, headers);
+        RestTemplate restTemplate = new RestTemplate(new HttpsClientRequestFactory());
+        logger.info("Ctrip 请求 url [{}] post body [{}]", url, entity);
+        return restTemplate.postForEntity(url, entity, String.class);
+    }
+
 }

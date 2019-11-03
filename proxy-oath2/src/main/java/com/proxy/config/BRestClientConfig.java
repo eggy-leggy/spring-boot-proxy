@@ -82,7 +82,7 @@ public class BRestClientConfig {
                 logger.info("bw 获取新的token");
                 accessToken = tokenJson.getString("access_token");
                 refreshToken = tokenJson.getString("refresh_token");
-                expiresIn = tokenJson.getLongValue("expires_in") * 1000L;
+                expiresIn = tokenJson.getLongValue("expires_in") / 2 * 1000L;
                 return true;
 
             }
