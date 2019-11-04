@@ -56,22 +56,27 @@ public class CTRestController {
                                @RequestParam(value = "format", required = false) String format,
                                @RequestBody String body) {
 
-        logger.info("url is [{}] post body is [{}]", url, body);
+        logger.trace("参数url [{}] ESB 请求 body [{}]", url, body);
 
         if (null == format) {
             format = "json";
         }
+        String postbox;
         switch (format) {
             case "json":
+                postbox = body;
                 break;
             case "xml":
-                body = DataFormatUtils.xml2json(body);
+                postbox = DataFormatUtils.xml2json(body);
+                if (null == postbox) {
+                    return new ResponseEntity<String>("请求报文xml格式不正确 " + body, HttpStatus.BAD_REQUEST);
+                }
                 break;
             default:
                 return new ResponseEntity<String>("请求数据格式只能是 json 或 xml", HttpStatus.BAD_REQUEST);
         }
 
-        return ctRestClientConfig.requestWithSign(url, format, body);
+        return ctRestClientConfig.requestWithSign(url, format, postbox);
     }
 
     private static int maxCount = 20000;

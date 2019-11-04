@@ -34,10 +34,7 @@ public class CTRestClientConfig {
     @Value(value = "${ct.account.ticketUrl}")
     private String ticketUrl;
 
-    // 过期时间固定1小时
-    private long expiresIn = 60 * 60 * 1000;
-
-    public static final String TICKET_EXPIRE = "身份过期";
+    private static final String TICKET_EXPIRE = "身份过期";
 
     @Value(value = "${ct.account.appKey}")
     private String appKey;
@@ -82,6 +79,8 @@ public class CTRestClientConfig {
     }
 
     private R tokenIsExpired() {
+        // 过期时间固定1小时
+        long expiresIn = 60 * 60 * 1000;
         if (new Date().getTime() - getTokenTimestamp >= expiresIn) {
             try {
                 boolean rc = this.getNewToken();
@@ -99,7 +98,7 @@ public class CTRestClientConfig {
     public ResponseEntity<String> requestWithSign(String url, String format, String postBody) {
         R r = tokenIsExpired();
         if (!String.valueOf(r.get("code")).equals("0")) {
-            return new ResponseEntity<String>("sign 签名失败", HttpStatus.UNAUTHORIZED);
+            return new ResponseEntity<String>("获取ticket失败， 请重试", HttpStatus.UNAUTHORIZED);
         }
 
         HttpHeaders headers = new HttpHeaders();
