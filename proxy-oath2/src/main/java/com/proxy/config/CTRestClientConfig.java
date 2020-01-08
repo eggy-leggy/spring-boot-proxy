@@ -66,7 +66,7 @@ public class CTRestClientConfig {
         ResponseEntity<String> res = restTemplate.postForEntity(ticketUrl, request, String.class);
         if (res.getStatusCode() == HttpStatus.OK) {
             JSONObject json = JSON.parseObject(res.getBody());
-            logger.info(json.toJSONString());
+            logger.info("再次获取ticket信息 {}", json.toJSONString());
             if (json.containsKey("Ticket")) {
                 accessToken = json.getString("Ticket");
                 auth.put("appKey", appKey);
@@ -74,6 +74,7 @@ public class CTRestClientConfig {
                 return true;
             }
         }
+        logger.info("获取新的ticket失败 HTTP CODE [{}] response [{}]", res.getStatusCodeValue(), res.getBody());
         return false;
 
     }
@@ -142,10 +143,10 @@ public class CTRestClientConfig {
         postBody = postBody.replace(YF_APPKEY, appKey).replace(YF_TICKET, accessToken);
         HttpEntity<String> entity = new HttpEntity<>(postBody, headers);
         RestTemplate restTemplate = new RestTemplate(new HttpsClientRequestFactory());
-//        logger.trace("Ctrip 请求 url [{}] post body [{}]", url, entity);
+        logger.trace("Ctrip 请求 url [{}] post body [{}]", url, entity);
         ResponseEntity<String> res = restTemplate.postForEntity(url, entity, String.class);
         String result = res.getBody();
-//        logger.trace("Ctrip 返回数据 [{}]", result);
+        logger.trace("Ctrip 返回数据 [{}]", result);
         if (null != result && result.indexOf(TICKET_EXPIRE) > 0) {
             logger.info("身份过期，重新获取ticket");
             res = retryRequest(url, headers, postBody);
@@ -168,11 +169,12 @@ public class CTRestClientConfig {
     private ResponseEntity<String> retryRequest(String url, HttpHeaders headers, String postBody) {
         try {
             boolean rc = this.getNewToken();
-            if (rc) {
+            // 如果 【没有成功】 则返回 null
+            if (!rc) {
                 return null;
             }
         } catch (Exception e) {
-            logger.info("获取token失败 {}", e.getMessage());
+            logger.info("获取token异常 {}", e.getMessage());
             return null;
         }
         String ctPostBody = postBody.replace(YF_APPKEY, appKey).replace(YF_TICKET, accessToken);
